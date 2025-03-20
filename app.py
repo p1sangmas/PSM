@@ -2,6 +2,8 @@ from flask import Flask, request, send_file
 import subprocess
 import os
 import requests
+import torch
+from basicsr.archs.ddcolor_arch import DDColor
 
 app = Flask(__name__)
 
@@ -44,9 +46,13 @@ def colorize():
             "python3", os.path.join("inference", "colorization_pipeline.py"),
             "--input_file", input_path,
             "--output_file", output_path,
-            "--model_path", MODEL_PATH
+            "--model_path", MODEL_PATH,
+            "--input_size", "512",  # Adjust as needed
+            "--model_size", "large"  # Adjust as needed
         ]
+        print("Starting the colorization process...")
         subprocess.run(" ".join(command), shell=True)
+        print("Colorization process completed.")
 
         # Return the colorized image
         return send_file(output_path, mimetype="image/png")
@@ -57,4 +63,3 @@ def colorize():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
