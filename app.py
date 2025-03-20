@@ -6,7 +6,7 @@ import requests
 app = Flask(__name__)
 
 # Google Drive file URL (replace with your file's shareable link)
-MODEL_URL = "https://drive.google.com/uc?export=download&id=14w8PDQHLGO1fMgDCu3e1LYzHHh62gslu"
+MODEL_URL = "https://drive.google.com/uc?export=download&id=YOUR_FILE_ID"
 MODEL_PATH = os.path.join("modelscope", "damo", "cv_ddcolor_image-colorization", "pytorch_model.pt")
 
 def download_file(url, save_path):
@@ -30,6 +30,7 @@ def colorize():
         # Save uploaded file
         uploaded_file = request.files["file"]
         input_path = os.path.join("assets", "test_images", "uploaded_image.JPEG")
+        os.makedirs(os.path.dirname(input_path), exist_ok=True)  # Create directory if it doesn't exist
         uploaded_file.save(input_path)
 
         # Download the model file if it doesn't exist
@@ -38,8 +39,11 @@ def colorize():
             download_file(MODEL_URL, MODEL_PATH)
             print("Model file downloaded.")
 
-        # Run the colorization script
+        # Create the output directory if it doesn't exist
         output_path = os.path.join("colorize_output", "colorized_image.png")
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        # Run the colorization script
         command = [
             "python3", os.path.join("inference", "colorization_pipeline.py"),
             "--input_file", input_path,
@@ -57,4 +61,3 @@ def colorize():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
